@@ -1,5 +1,5 @@
 from pythae.pipelines import TrainingPipeline
-from pythae.models import VAEConfig
+from pythae.models import VAE, VAEConfig
 from pythae.trainers import BaseTrainerConfig
 
 from models import TftEncoder, TftDecoder

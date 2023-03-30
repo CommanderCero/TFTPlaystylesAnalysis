@@ -50,10 +50,7 @@ class TftEncoder(BaseEncoder):
         ], dim=1)
         
         encoding = self.encoder(encoder_inp)
-        return ModelOutput(
-            embedding=self.embedding(encoding),
-            log_covariance=self.log_var(encoding)
-        )
+        return self.embedding(encoding)
     
 class TftDecoder(BaseDecoder):
     def __init__(self,
@@ -89,12 +86,10 @@ class TftDecoder(BaseDecoder):
         
         combinations = x[:, start:]
         
-        return ModelOutput(
-            reconstruction = {
-                "champions": champions.reshape(-1, CHAMPIONS_PER_ROW, NUM_CHAMPIONS),
-                "champion_items": items.reshape(-1, ITEMS_PER_CHAMPION*CHAMPIONS_PER_ROW, NUM_ITEMS),
-                "champion_star": champion_stars.reshape(-1, CHAMPIONS_PER_ROW, NUM_STARS),
-                "combinations": combinations
-            }
-        )
+        return {
+            "champions": champions.reshape(-1, CHAMPIONS_PER_ROW, NUM_CHAMPIONS),
+            "champion_items": items.reshape(-1, ITEMS_PER_CHAMPION*CHAMPIONS_PER_ROW, NUM_ITEMS),
+            "champion_star": champion_stars.reshape(-1, CHAMPIONS_PER_ROW, NUM_STARS),
+            "combinations": combinations
+        }
 

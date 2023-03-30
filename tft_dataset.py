@@ -32,12 +32,13 @@ class TftDataset(torch.utils.data.Dataset):
     
     def __getitem__(self, index):
         return {
-            "data": {
-                "champions": self.name_data.iloc[index].to_numpy(),
-                "champion_items": self.item_data.iloc[index].to_numpy(),
-                "champion_star": self.star_data.iloc[index].to_numpy(),
-                "combinations": self.combination_data.iloc[index].to_numpy()
-            }
+            "champions": self.name_data.iloc[index].to_numpy(),
+            "champions_mask": self.name_data.iloc[index].to_numpy() == 0,
+            "champion_items": self.item_data.iloc[index].to_numpy(),
+            "champion_items_mask": self.item_data.iloc[index].to_numpy() == 0,
+            "champion_star": self.star_data.iloc[index].to_numpy(),
+            "champion_star_mask": self.star_data.iloc[index].to_numpy() == 0,
+            "combinations": self.combination_data.iloc[index].to_numpy()
         }
         
     def __len__(self):
@@ -55,5 +56,3 @@ if __name__ == "__main__":
     data = next(iter(train_dataloader))
     encoding = encoder(data)
     decoding = decoder(encoding)
-    
-    TftVAE
