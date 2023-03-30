@@ -14,7 +14,7 @@ NUM_STARS = 3 + 1
 
 class TftDataset(torch.utils.data.Dataset):
     def __init__(self,
-        data_path: str="C:/Projects/TFTPlaystylesAnalysis/training_data.csv"
+        data_path: str="./training_data.csv"
     ):
         data = pd.read_csv(data_path)
         

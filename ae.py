@@ -8,6 +8,7 @@ import sys
 from tft_dataset import TftDataset
 from models import TftEncoder, TftDecoder
 
+
 class Network(nn.Module):
     def __init__(self, args):
         super(Network, self).__init__()
@@ -23,6 +24,7 @@ class Network(nn.Module):
     def forward(self, x):
         z = self.encode(x)
         return self.decode(z)
+
 
 class AE(object):
     def __init__(self, args):
@@ -45,7 +47,7 @@ class AE(object):
             x.reshape(x.shape[0], -1),
             reduction="mean",
         )
-        
+
     def ce_loss(self, recon_x, x):
         return F.cross_entropy(
             recon_x.reshape(-1, recon_x.shape[-1]),
@@ -76,11 +78,11 @@ class AE(object):
             if batch_idx % self.args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(self.train_loader.dataset),
-                    100. * batch_idx / len(self.train_loader),
-                    loss.item() / len(data)))
+                           100. * batch_idx / len(self.train_loader),
+                           loss.item() / len(data)))
 
         print('====> Epoch: {} Average loss: {:.4f}'.format(
-              epoch, train_loss / len(self.train_loader.dataset)))
+            epoch, train_loss / len(self.train_loader.dataset)))
 
     def test(self, epoch):
         self.model.eval()
@@ -93,13 +95,14 @@ class AE(object):
 
         test_loss /= len(self.test_loader.dataset)
         print('====> Test set loss: {:.4f}'.format(test_loss))
-        
-        
+
+
 if __name__ == "__main__":
     import argparse
     import os
+
     parser = argparse.ArgumentParser(
-    description='Main function to call training for different AutoEncoders')
+        description='Main function to call training for different AutoEncoders')
     parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='input batch size for training (default: 128)')
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
@@ -118,18 +121,18 @@ if __name__ == "__main__":
                         help='Which architecture to use')
     parser.add_argument('--dataset', type=str, default='MNIST', metavar='N',
                         help='Which dataset to use')
-    
+
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     torch.manual_seed(args.seed)
-    
+
     ae = AE(args)
     if __name__ == "__main__":
         try:
             os.stat(args.results_path)
-        except :
+        except:
             os.mkdir(args.results_path)
-    
+
         try:
             autoenc = ae
         except KeyError:
@@ -138,10 +141,16 @@ if __name__ == "__main__":
             print('Maybe you can implement it?')
             print('---------------------------------------------------------')
             sys.exit()
-    
+
         try:
             for epoch in range(1, args.epochs + 1):
                 autoenc.train(epoch)
-                #autoenc.test(epoch)
+                # autoenc.test(epoch)
         except (KeyboardInterrupt, SystemExit):
             print("Manual Interruption")
+
+        encoder = ae.model.encoder
+        decoder = ae.model.decoder
+
+        torch.save(encoder.state_dict(), "AE_encoder.pt")
+        torch.save(decoder.state_dict(), "AE_decoder.pt")
