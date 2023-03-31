@@ -31,8 +31,9 @@ class AE(object):
         self.args = args
         self.device = torch.device("cuda" if args.cuda else "cpu")
         self._init_dataset()
-        self.train_loader = torch.utils.data.DataLoader(self.data, batch_size=64, shuffle=True)
-        self.test_loader = torch.utils.data.DataLoader(self.data, batch_size=64, shuffle=True)
+        train, test = torch.utils.data.random_split(self.data, [0.9, 0.1])
+        self.train_loader = torch.utils.data.DataLoader(train, batch_size=64, shuffle=True)
+        self.test_loader = torch.utils.data.DataLoader(test, batch_size=64, shuffle=True)
 
         self.model = Network(args)
         self.model.to(self.device)
@@ -88,15 +89,16 @@ class AE(object):
         self.model.eval()
         test_loss = 0
         with torch.no_grad():
-            for i, (data, _) in enumerate(self.test_loader):
-                data = data.to(self.device)
+            for i, data in enumerate(self.test_loader):
+                for key, value in data.items():
+                    data[key] = value.to(self.device)
                 recon_batch = self.model(data)
                 test_loss += self.loss_function(recon_batch, data).item()
 
         test_loss /= len(self.test_loader.dataset)
         print('====> Test set loss: {:.4f}'.format(test_loss))
-
-
+        return test_loss
+    
 if __name__ == "__main__":
     import argparse
     import os
@@ -143,14 +145,17 @@ if __name__ == "__main__":
             sys.exit()
 
         try:
+            best_test_loss = float("inf")
             for epoch in range(1, args.epochs + 1):
                 autoenc.train(epoch)
-                # autoenc.test(epoch)
+                loss = autoenc.test(epoch)
+                if loss < best_test_loss:
+                    print("Found new best model!")
+                    best_test_loss = loss
+                    
+                    encoder = ae.model.encoder
+                    decoder = ae.model.decoder
+                    torch.save(encoder.state_dict(), "AE_encoder.pt")
+                    torch.save(decoder.state_dict(), "AE_decoder.pt")
         except (KeyboardInterrupt, SystemExit):
             print("Manual Interruption")
-
-        encoder = ae.model.encoder
-        decoder = ae.model.decoder
-
-        torch.save(encoder.state_dict(), "AE_encoder.pt")
-        torch.save(decoder.state_dict(), "AE_decoder.pt")
