@@ -2,14 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pythae.models.nn import BaseEncoder, BaseDecoder
-from pythae.models.base.base_utils import ModelOutput
-
 from tft_dataset import NUM_CHAMPIONS, NUM_ITEMS, NUM_STARS, CHAMPIONS_PER_ROW, ITEMS_PER_CHAMPION, COMBINATIONS_PER_ROW
 
 from typing import Dict
 
-class TftEncoder(BaseEncoder):
+class TftEncoder(nn.Module):
     def __init__(self,
         embedding_size:int = 128,
         champion_encoding_size:int = 64,
@@ -52,7 +49,7 @@ class TftEncoder(BaseEncoder):
         encoding = self.encoder(encoder_inp)
         return self.embedding(encoding)
     
-class TftDecoder(BaseDecoder):
+class TftDecoder(nn.Module):
     def __init__(self,
         embedding_size:int = 128
     ):
