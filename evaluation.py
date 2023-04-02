@@ -11,7 +11,7 @@ data_loader = DataLoader(dataset, batch_size=256)
 
 encoder = TftEncoder(embedding_size=32)
 
-encoder.load_state_dict(torch.load("AE_encoder.pt"))
+encoder.load_state_dict(torch.load("trained_model/encoder.pt"))
 
 outputs = np.empty((len(dataset), 32))
 
