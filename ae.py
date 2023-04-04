@@ -136,26 +136,17 @@ if __name__ == "__main__":
             os.mkdir(args.results_path)
 
         try:
-            autoenc = ae
-        except KeyError:
-            print('---------------------------------------------------------')
-            print('Model architecture not supported. ', end='')
-            print('Maybe you can implement it?')
-            print('---------------------------------------------------------')
-            sys.exit()
-
-        try:
             best_test_loss = float("inf")
             for epoch in range(1, args.epochs + 1):
-                autoenc.train(epoch)
-                loss = autoenc.test(epoch)
+                ae.train(epoch)
+                loss = ae.test(epoch)
                 if loss < best_test_loss:
                     print("Found new best model!")
                     best_test_loss = loss
                     
                     encoder = ae.model.encoder
                     decoder = ae.model.decoder
-                    torch.save(encoder.state_dict(), "encoder.pt")
-                    torch.save(decoder.state_dict(), "decoder.pt")
+                    torch.save(encoder.state_dict(), f"{args.results_path}/encoder.pt")
+                    torch.save(decoder.state_dict(), f"{args.results_path}/decoder.pt")
         except (KeyboardInterrupt, SystemExit):
             print("Manual Interruption")
