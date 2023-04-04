@@ -2,14 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pythae.models.nn import BaseEncoder, BaseDecoder
-from pythae.models.base.base_utils import ModelOutput
-
 from tft_dataset import NUM_CHAMPIONS, NUM_ITEMS, NUM_STARS, CHAMPIONS_PER_ROW, ITEMS_PER_CHAMPION, COMBINATIONS_PER_ROW
 
 from typing import Dict
 
-class TftEncoder(BaseEncoder):
+class TftEncoder(nn.Module):
     def __init__(self,
         embedding_size:int = 128,
         champion_encoding_size:int = 64,
@@ -50,12 +47,9 @@ class TftEncoder(BaseEncoder):
         ], dim=1)
         
         encoding = self.encoder(encoder_inp)
-        return ModelOutput(
-            embedding=self.embedding(encoding),
-            log_covariance=self.log_var(encoding)
-        )
+        return self.embedding(encoding)
     
-class TftDecoder(BaseDecoder):
+class TftDecoder(nn.Module):
     def __init__(self,
         embedding_size:int = 128
     ):
@@ -89,12 +83,10 @@ class TftDecoder(BaseDecoder):
         
         combinations = x[:, start:]
         
-        return ModelOutput(
-            reconstruction = {
-                "champions": champions.reshape(-1, CHAMPIONS_PER_ROW, NUM_CHAMPIONS),
-                "champion_items": items.reshape(-1, ITEMS_PER_CHAMPION*CHAMPIONS_PER_ROW, NUM_ITEMS),
-                "champion_star": champion_stars.reshape(-1, CHAMPIONS_PER_ROW, NUM_STARS),
-                "combinations": combinations
-            }
-        )
+        return {
+            "champions": champions.reshape(-1, CHAMPIONS_PER_ROW, NUM_CHAMPIONS),
+            "champion_items": items.reshape(-1, ITEMS_PER_CHAMPION*CHAMPIONS_PER_ROW, NUM_ITEMS),
+            "champion_star": champion_stars.reshape(-1, CHAMPIONS_PER_ROW, NUM_STARS),
+            "combinations": combinations
+        }
 
